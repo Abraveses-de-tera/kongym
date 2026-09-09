@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KONGYM — Centro de fitness en Langreo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="image-slot.js"></script>
+<style>
+  :root { --navy:#22262f; --navy2:#14171d; --yellow:#fdc526; --white:#f4f5f7; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; overflow-x:hidden; }
+  body { background:var(--navy2); color:var(--white); font-family:'Archivo',sans-serif; overflow-x:hidden; }
+  a { color:var(--yellow); text-decoration:none; }
+  a:hover { color:#ffd95e; }
+  ::selection { background:var(--yellow); color:#161a20; }
+
+  /* ---- background ---- */
+  #bgwrap { position:fixed; inset:0; z-index:0; overflow:hidden; background:#000; }
+  #bgvid { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:62% 28%;
+           transform:scale(1.02); filter:brightness(.98) contrast(1.08); }
+  #bgwrap::before { content:""; position:absolute; inset:0; z-index:1;
+    background:linear-gradient(90deg, rgba(20,23,29,.9) 0%, rgba(20,23,29,.62) 36%, rgba(20,23,29,.1) 70%, rgba(20,23,29,0) 100%); }
+  #bgwrap::after { content:""; position:absolute; inset:0; z-index:1;
+    background:linear-gradient(180deg, rgba(20,23,29,.5) 0%, rgba(20,23,29,0) 20%, rgba(20,23,29,0) 60%, rgba(20,23,29,.95) 100%); }
+  #grain { position:fixed; inset:0; z-index:3; pointer-events:none; opacity:.5; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .06 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  #dim { position:absolute; inset:0; z-index:2; background:var(--navy2); opacity:0; }
+
+  /* ---- nav ---- */
+  nav { position:fixed; top:0; left:0; right:0; z-index:10; display:flex; align-items:center; gap:38px;
+        padding:14px 48px; transition:background .3s, box-shadow .3s, padding .3s; }
+  nav.solid { background:rgba(20,23,29,.82); backdrop-filter:blur(12px); box-shadow:0 1px 0 rgba(253,197,38,.18); padding:10px 48px; }
+  .logo { display:flex; align-items:center; gap:14px; }
+  .logo .mark { width:52px; height:52px; border-radius:50%; overflow:hidden; flex:none; position:relative;
+                border:2px solid var(--yellow); background:#000; box-shadow:0 0 0 0 rgba(253,197,38,.4); transition:box-shadow .3s; }
+  .logo:hover .mark { box-shadow:0 0 24px 2px rgba(253,197,38,.35); }
+  .logo .mark video { width:100%; height:100%; object-fit:cover; display:block; }
+  .logo b { font-family:'Oswald',sans-serif; font-weight:700; font-size:22px; letter-spacing:.14em; color:var(--white); }
+  .logo b span { color:var(--yellow); }
+  nav .links { display:flex; gap:28px; font-size:14.5px; }
+  nav .links a { color:var(--white); font-weight:500; letter-spacing:.02em; white-space:nowrap; position:relative; padding:4px 0; }
+  nav .links a::after { content:""; position:absolute; left:0; bottom:0; height:2px; width:0; background:var(--yellow); transition:width .25s; }
+  nav .links a:hover { color:var(--yellow); }
+  nav .links a:hover::after { width:100%; }
+  nav .spacer { flex:1; }
+  .btn { display:inline-flex; align-items:center; gap:10px; background:var(--yellow); color:#161a20; font-family:'Oswald',sans-serif;
+         font-weight:700; letter-spacing:.18em; font-size:14px; padding:14px 32px; cursor:pointer; text-transform:uppercase;
+         transition:transform .2s, box-shadow .2s; border:none; }
+  .btn:hover { background:#ffd95e; color:#161a20; transform:translateY(-2px); box-shadow:0 10px 30px -8px rgba(253,197,38,.5); }
+  .btn.ghost { background:transparent; color:var(--white); border:1px solid rgba(244,245,247,.35); box-shadow:none; }
+  .btn.ghost:hover { border-color:var(--yellow); color:var(--yellow); background:transparent; }
+  .btn .ar { font-family:'Archivo',sans-serif; font-weight:600; transform:translateY(-1px); }
+
+  /* ---- hero ---- */
+  main { position:relative; z-index:4; }
+  .hero { min-height:100vh; display:flex; flex-direction:column; justify-content:center; padding:150px 48px 120px; position:relative; }
+  .eyebrow { display:flex; align-items:center; gap:14px; font-family:'Oswald',sans-serif; font-weight:500;
+             letter-spacing:.34em; font-size:14px; color:var(--yellow); text-transform:uppercase; }
+  .eyebrow::before { content:""; width:44px; height:2px; background:var(--yellow); }
+  .hero h1 { font-family:'Oswald',sans-serif; font-weight:700; font-size:clamp(84px,14vw,204px); line-height:.92;
+             color:var(--yellow); letter-spacing:.005em; margin:18px 0 8px; text-shadow:0 8px 60px rgba(0,0,0,.5); }
+  .hero .tag { font-family:'Oswald',sans-serif; font-weight:600; font-size:clamp(19px,2.6vw,30px); letter-spacing:.32em;
+               color:var(--white); text-transform:uppercase; }
+  .hero .sub { margin:28px 0 30px; font-size:18px; line-height:1.75; max-width:500px; color:rgba(244,245,247,.88); text-wrap:pretty; }
+  .chips { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:38px; max-width:560px; }
+  .chip { font-family:'Oswald',sans-serif; font-weight:500; font-size:13px; letter-spacing:.16em; text-transform:uppercase;
+          padding:9px 16px; border:1px solid rgba(253,197,38,.35); color:rgba(244,245,247,.85); border-radius:999px;
+          backdrop-filter:blur(4px); background:rgba(20,23,29,.35); }
+  .cta-row { display:flex; gap:16px; flex-wrap:wrap; }
+  .scroll-cue { position:absolute; bottom:26px; left:48px; display:flex; align-items:center; gap:12px;
+                font-size:11.5px; letter-spacing:.28em; text-transform:uppercase; color:rgba(244,245,247,.55); }
+  .scroll-cue i { display:block; width:2px; height:34px; background:linear-gradient(180deg,var(--yellow),transparent);
+                  animation:drop 1.6s ease-in-out infinite; }
+  @keyframes drop { 0%{transform:scaleY(0);transform-origin:top} 55%{transform:scaleY(1);transform-origin:top}
+                    56%{transform-origin:bottom} 100%{transform:scaleY(0);transform-origin:bottom} }
+  .h-in { opacity:0; transform:translateY(26px); animation:rise .8s cubic-bezier(.2,.7,.2,1) forwards; }
+  .d1{animation-delay:.05s} .d2{animation-delay:.15s} .d3{animation-delay:.25s} .d4{animation-delay:.35s} .d5{animation-delay:.45s}
+  @keyframes rise { to { opacity:1; transform:none; } }
+
+  /* ---- marquee ---- */
+  .marquee { position:relative; z-index:4; background:var(--yellow); overflow:hidden; padding:15px 0;
+             transform:rotate(-1.2deg) scale(1.03); box-shadow:0 -20px 60px rgba(0,0,0,.45); }
+  .marquee .track { display:flex; gap:56px; white-space:nowrap; width:max-content; animation:slide 26s linear infinite; }
+  .marquee span { font-family:'Oswald',sans-serif; font-weight:700; font-size:19px; letter-spacing:.24em;
+                  color:#161a20; text-transform:uppercase; display:flex; align-items:center; gap:56px; }
+  .marquee span::after { content:"●"; font-size:9px; }
+  @keyframes slide { to { transform:translateX(-50%); } }
+  @media (prefers-reduced-motion: reduce){ .marquee .track, .scroll-cue i, .h-in { animation:none; } .h-in { opacity:1; transform:none; } }
+
+  /* ---- sections base ---- */
+  .sec { position:relative; z-index:4; background:var(--navy2); }
+  .inner { max-width:1180px; margin:0 auto; }
+  .reveal { opacity:0; transform:translateY(28px); transition:opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in { opacity:1; transform:none; }
+  .sec h2 { font-family:'Oswald',sans-serif; font-weight:700; font-size:clamp(44px,6vw,80px); line-height:.98; }
+  .sec h2 em { color:var(--yellow); font-style:normal; }
+  .lede { margin:22px 0 0; max-width:520px; color:rgba(244,245,247,.75); line-height:1.7; font-size:17px; }
+  .watermark { position:absolute; top:-38px; right:-10px; font-family:'Oswald',sans-serif; font-weight:700;
+               font-size:clamp(90px,14vw,220px); line-height:1; color:transparent; -webkit-text-stroke:1px rgba(244,245,247,.07);
+               pointer-events:none; user-select:none; }
+
+  /* ---- intro ---- */
+  .intro { padding:120px 48px 110px; border-top:1px solid rgba(253,197,38,.14); margin-top:-10px; overflow:hidden; }
+  .intro .split { display:grid; grid-template-columns:1.1fr 1fr; gap:64px; align-items:center; }
+  .intro .pbody { margin-top:26px; display:flex; flex-direction:column; gap:16px; color:rgba(244,245,247,.78);
+                  line-height:1.75; font-size:16.5px; max-width:560px; text-wrap:pretty; }
+  .intro .pbody b { color:var(--white); }
+  .intro .cta-row { margin-top:34px; }
+  .introph { height:460px; border:1px solid rgba(253,197,38,.2); position:relative; }
+  .introph::before { content:""; position:absolute; inset:14px -14px -14px 14px; border:1px solid rgba(253,197,38,.3); z-index:-1; }
+
+  /* ---- services ---- */
+  .services { padding:110px 48px; overflow:hidden; }
+  .services .inner { position:relative; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:18px; margin-top:56px; }
+  .card { position:relative; background:var(--navy); border:1px solid rgba(253,197,38,.16); padding:36px 30px 40px;
+          display:flex; flex-direction:column; gap:14px; transition:transform .28s, border-color .28s, background .28s; overflow:hidden; }
+  .card::before { content:""; position:absolute; top:0; left:0; right:0; height:3px; background:var(--yellow);
+                  transform:scaleX(0); transform-origin:left; transition:transform .35s; }
+  .card:hover { transform:translateY(-8px); border-color:rgba(253,197,38,.55); background:#262b35; }
+  .card:hover::before { transform:scaleX(1); }
+  .card span.num { font-family:'Oswald',sans-serif; font-weight:700; font-size:15px; color:var(--yellow); letter-spacing:.2em; }
+  .card b { font-family:'Oswald',sans-serif; font-weight:600; font-size:23px; letter-spacing:.04em; text-transform:uppercase; }
+  .card small { font-family:'Oswald',sans-serif; font-weight:500; font-size:13px; letter-spacing:.14em; text-transform:uppercase;
+                color:rgba(253,197,38,.75); }
+  .card p { color:rgba(244,245,247,.7); line-height:1.65; font-size:15.5px; flex:1; }
+  .card .more { font-family:'Oswald',sans-serif; font-weight:600; font-size:13px; letter-spacing:.2em; text-transform:uppercase;
+                color:var(--yellow); opacity:0; transform:translateX(-6px); transition:opacity .28s, transform .28s; }
+  .card:hover .more { opacity:1; transform:none; }
+  .extras { margin-top:26px; color:rgba(244,245,247,.6); font-size:15px; letter-spacing:.02em; }
+  .extras b { color:var(--yellow); font-weight:600; }
+
+  /* ---- why / pillars + stats ---- */
+  .why { padding:110px 48px; border-top:1px solid rgba(253,197,38,.14); overflow:hidden; }
+  .pillars { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:18px; margin-top:56px; }
+  .pillar { border:1px solid rgba(253,197,38,.18); padding:34px 30px; background:linear-gradient(160deg, rgba(253,197,38,.06), rgba(253,197,38,0) 60%); }
+  .pillar i { display:block; font-style:normal; font-family:'Oswald',sans-serif; font-weight:700; font-size:34px; color:var(--yellow); }
+  .pillar b { display:block; font-family:'Oswald',sans-serif; font-weight:600; font-size:21px; letter-spacing:.05em;
+              text-transform:uppercase; margin:14px 0 10px; }
+  .pillar p { color:rgba(244,245,247,.7); line-height:1.65; font-size:15px; }
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:18px; margin-top:60px;
+           border-top:1px solid rgba(253,197,38,.18); padding-top:44px; }
+  .stat { text-align:center; }
+  .stat b { font-family:'Oswald',sans-serif; font-weight:700; font-size:clamp(44px,5vw,64px); color:var(--yellow); }
+  .stat span { display:block; margin-top:6px; font-family:'Oswald',sans-serif; font-weight:500; font-size:14px;
+               letter-spacing:.24em; text-transform:uppercase; color:rgba(244,245,247,.65); }
+
+  /* ---- gym ---- */
+  .gym { padding:110px 48px 120px; border-top:1px solid rgba(253,197,38,.14); }
+  .gym .split { display:grid; grid-template-columns:1fr 1.1fr; gap:64px; align-items:center; }
+  .feat { display:flex; flex-direction:column; margin-top:44px; border-top:1px solid rgba(253,197,38,.18); }
+  .feat div { display:flex; align-items:center; gap:18px; padding:18px 4px; border-bottom:1px solid rgba(253,197,38,.18); }
+  .feat b { font-family:'Oswald',sans-serif; font-weight:600; font-size:18px; letter-spacing:.06em; text-transform:uppercase; }
+  .feat i { font-style:normal; font-family:'Oswald',sans-serif; font-weight:700; color:var(--yellow); font-size:14px; letter-spacing:.1em; }
+  .photos { display:grid; grid-template-columns:1fr 1fr; grid-auto-rows:190px; gap:14px; }
+  .photos .big { grid-column:1 / -1; height:300px; }
+  .ph { position:relative; border:1px solid rgba(253,197,38,.2); }
+  .gallery { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); grid-auto-rows:210px; gap:14px; margin-top:60px; }
+
+  /* ---- tarifas band ---- */
+  .tarifas { padding:110px 48px; border-top:1px solid rgba(253,197,38,.14); overflow:hidden; }
+  .planrow { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:18px; margin-top:56px; }
+  .plan { position:relative; border:1px solid rgba(253,197,38,.25); padding:44px 38px; overflow:hidden;
+          background:linear-gradient(140deg, rgba(253,197,38,.08), rgba(253,197,38,0) 55%);
+          display:flex; flex-direction:column; gap:14px; transition:transform .28s, border-color .28s; }
+  .plan:hover { transform:translateY(-6px); border-color:rgba(253,197,38,.6); }
+  .plan small { font-family:'Oswald',sans-serif; font-weight:500; font-size:13px; letter-spacing:.24em;
+                text-transform:uppercase; color:var(--yellow); }
+  .plan b { font-family:'Oswald',sans-serif; font-weight:700; font-size:clamp(26px,3vw,38px); line-height:1.05; text-transform:uppercase; }
+  .plan p { color:rgba(244,245,247,.72); line-height:1.65; font-size:15.5px; flex:1; }
+  .plan .btn { align-self:flex-start; margin-top:10px; }
+
+  /* ---- horarios + contacto ---- */
+  .contact { padding:110px 48px 120px; border-top:1px solid rgba(253,197,38,.14); overflow:hidden; }
+  .contact .split { display:grid; grid-template-columns:1fr 1.15fr; gap:64px; align-items:start; margin-top:56px; }
+  .hours { border-top:1px solid rgba(253,197,38,.18); }
+  .hours div { display:flex; justify-content:space-between; gap:20px; padding:16px 4px; border-bottom:1px solid rgba(253,197,38,.18); }
+  .hours b { font-family:'Oswald',sans-serif; font-weight:600; font-size:16px; letter-spacing:.08em; text-transform:uppercase; }
+  .hours span { color:rgba(244,245,247,.7); font-size:15px; }
+  .cinfo { display:flex; flex-direction:column; gap:14px; margin-top:36px; }
+  .cinfo a, .cinfo span { display:flex; align-items:center; gap:14px; color:rgba(244,245,247,.85); font-size:16px; }
+  .cinfo i { font-style:normal; width:38px; height:38px; flex:none; display:grid; place-items:center;
+             border:1px solid rgba(253,197,38,.4); color:var(--yellow); font-family:'Oswald',sans-serif; font-weight:700; }
+  .cinfo a:hover { color:var(--yellow); }
+  form { display:flex; flex-direction:column; gap:14px; }
+  .frow { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  input, textarea { background:var(--navy); border:1px solid rgba(253,197,38,.2); color:var(--white);
+                    font-family:'Archivo',sans-serif; font-size:15px; padding:15px 16px; width:100%; resize:vertical; }
+  input:focus, textarea:focus { outline:none; border-color:var(--yellow); }
+  input::placeholder, textarea::placeholder { color:rgba(244,245,247,.4); }
+  .privacy { display:flex; align-items:center; gap:10px; font-size:13.5px; color:rgba(244,245,247,.6); }
+  .privacy input { width:16px; height:16px; accent-color:var(--yellow); }
+  #formOk { display:none; border:1px solid rgba(253,197,38,.5); background:rgba(253,197,38,.08); padding:16px 18px;
+            font-size:15px; color:var(--white); }
+
+  /* ---- footer ---- */
+  footer { position:relative; z-index:4; background:var(--navy2); padding:0 48px 34px; }
+  .foot-inner { max-width:1180px; margin:0 auto; border:1px solid rgba(253,197,38,.28); position:relative; overflow:hidden;
+                background:linear-gradient(120deg, rgba(253,197,38,.1), rgba(253,197,38,0) 55%);
+                padding:64px 56px; display:flex; align-items:center; gap:40px; flex-wrap:wrap; }
+  .foot-inner::before { content:""; position:absolute; top:-60px; right:-60px; width:220px; height:220px; border-radius:50%;
+                        background:radial-gradient(circle, rgba(253,197,38,.22), transparent 70%); }
+  .foot-inner h3 { font-family:'Oswald',sans-serif; font-weight:700; font-size:clamp(30px,4vw,52px); line-height:1.04; flex:1; min-width:280px; }
+  .foot-inner h3 em { color:var(--yellow); font-style:normal; }
+  .foot-grid { max-width:1180px; margin:54px auto 0; display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:44px;
+               padding-bottom:44px; border-bottom:1px solid rgba(253,197,38,.14); }
+  .foot-grid p { color:rgba(244,245,247,.6); line-height:1.7; font-size:14.5px; margin-top:16px; max-width:380px; }
+  .foot-grid h4 { font-family:'Oswald',sans-serif; font-weight:600; font-size:15px; letter-spacing:.22em;
+                  text-transform:uppercase; color:var(--yellow); margin-bottom:18px; }
+  .foot-grid ul { list-style:none; display:flex; flex-direction:column; gap:10px; }
+  .foot-grid ul a { color:rgba(244,245,247,.75); font-size:14.5px; }
+  .foot-grid ul a:hover { color:var(--yellow); }
+  .social { display:flex; gap:10px; margin-top:20px; }
+  .social a { width:38px; height:38px; display:grid; place-items:center; border:1px solid rgba(253,197,38,.35);
+              color:var(--white); font-family:'Oswald',sans-serif; font-weight:600; font-size:13px; }
+  .social a:hover { border-color:var(--yellow); color:var(--yellow); }
+  .foot-bar { max-width:1180px; margin:26px auto 0; display:flex; align-items:center; gap:24px; flex-wrap:wrap;
+              color:rgba(244,245,247,.5); font-size:13px; letter-spacing:.06em; }
+  .foot-bar .sp { flex:1; }
+  .foot-bar a { color:rgba(244,245,247,.7); }
+  .foot-bar a:hover { color:var(--yellow); }
+
+  @media (max-width:1100px){ nav { gap:20px; } nav .links { gap:16px; font-size:13px; } .btn { padding:12px 22px; } }
+  @media (max-width:960px){
+    .intro .split, .gym .split, .contact .split { grid-template-columns:1fr; gap:44px; }
+    .foot-grid { grid-template-columns:1fr; gap:34px; }
+    .introph { height:340px; }
+  }
+  @media (max-width:860px){
+    nav { padding:12px 20px; gap:20px; } nav .links { display:none; }
+    .hero, .intro, .services, .why, .gym, .tarifas, .contact, footer { padding-left:20px; padding-right:20px; }
+    .scroll-cue { left:20px; }
+    #bgvid { object-position:70% 28%; }
+    .foot-inner { padding:44px 28px; }
+    .frow { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div id="bgwrap">
+  <video id="bgvid" src="assets/fondo-gorila.mp4" autoplay muted loop playsinline></video>
+  <div id="dim"></div>
+</div>
+<div id="grain"></div>
+
+<nav id="nav">
+  <a class="logo" href="#top">
+    <span class="mark"><video src="assets/logo-animado.mp4" autoplay muted loop playsinline aria-label="KONGYM logo animado"></video></span>
+    <b>KON<span>GYM</span></b>
+  </a>
+  <div class="links">
+    <a href="#servicios">Nuestros servicios</a><a href="#tarifas">Tarifas</a><a href="#gym">Nuestro Gym</a><a href="#horarios">Horarios</a><a href="#contacto">Contacto</a>
+  </div>
+  <div class="spacer"></div>
+  <a class="btn" href="#contacto">Reservar</a>
+</nav>
+
+<main id="top">
+  <section class="hero" id="heroSec" data-screen-label="Portada">
+    <div id="heroInner">
+      <div class="eyebrow h-in d1">Centro de fitness · Langreo</div>
+      <h1 class="h-in d2">KONGYM</h1>
+      <div class="tag h-in d3">Despierta tu instinto</div>
+      <p class="sub h-in d4">¿Quieres tu mejor versión? Mejora tu físico, gana salud y siéntete más fuerte que nunca. Actividades deportivas, artes marciales, clases infantiles… Empieza hoy.</p>
+      <div class="chips h-in d4">
+        <span class="chip">Actividades deportivas</span><span class="chip">Artes marciales</span><span class="chip">Clases infantiles</span>
+      </div>
+      <div class="cta-row h-in d5">
+        <a class="btn" href="#contacto">Contactar <span class="ar">→</span></a>
+        <a class="btn ghost" href="#servicios">Ver servicios</a>
+      </div>
+    </div>
+    <div class="scroll-cue"><i></i>Desliza</div>
+  </section>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="track" id="mtrack">
+      <span>Tu mejor versión</span><span>Fuerza</span><span>Salud</span><span>Disciplina</span>
+      <span>Comunidad</span><span>Sin excusas</span><span>Actividades deportivas</span>
+    </div>
+  </div>
+
+  <section class="sec intro" id="conocenos" data-screen-label="Intro — Tu mejor versión">
+    <div class="inner split">
+      <div>
+        <h2 class="reveal">TU MEJOR VERSIÓN<br><em>EMPIEZA AQUÍ</em></h2>
+        <div class="pbody reveal">
+          <p>No importa tu punto de partida: importa a dónde quieres llegar. En KONGYM te ayudamos a <b>mejorar tu físico, ganar salud y sentirte bien contigo</b>, con un plan a tu medida y un equipo que no te deja solo.</p>
+          <p>Estamos <b>especializados en ejercicio físico y artes marciales,</b> ofrecemos una amplia gama de actividades deportivas y entrenamientos personales, en un <b>ambiente acogedor para todos los niveles y edades</b>. Y porque el deporte también educa, impartimos <b>kárate y boxeo infantil</b>.</p>
+        </div>
+        <div class="cta-row reveal"><a class="btn" href="#servicios">Ver servicios <span class="ar">→</span></a></div>
+      </div>
+      <div class="introph reveal"><image-slot id="intro-foto" shape="rect" placeholder="Foto: entrenando en KONGYM"></image-slot></div>
+    </div>
+  </section>
+
+  <section class="sec services" id="servicios" data-screen-label="Servicios — Y tú, ¿de qué eres?">
+    <div class="inner">
+      <div class="watermark" aria-hidden="true">SERVICIOS</div>
+      <h2 class="reveal">Y TÚ,<br><em>¿DE QUÉ ERES?</em></h2>
+      <p class="lede reveal">Elige tu camino — o combínalos. Todos llevan al mismo sitio: a tu mejor versión.</p>
+      <div class="grid">
+        <div class="card reveal"><span class="num">01</span><b>Actividades deportivas</b><small>Zumba · Ciclo indoor · Pump · Pilates · Kombat</small><p>Clases grupales con monitores para ganar fuerza, resistencia y movilidad — y pasarlo bien mientras mejoras.</p><span class="more">Infórmate →</span></div>
+        <div class="card reveal"><span class="num">02</span><b>Sala de musculación</b><small>Máquinas · Peso libre · Cardio</small><p>Diferentes zonas de ejercicio para entrenar a tu ritmo, con el material que necesitas para progresar.</p><span class="more">Infórmate →</span></div>
+        <div class="card reveal"><span class="num">03</span><b>Artes marciales</b><small>Boxeo</small><p>Técnica, respeto y disciplina. La forma más completa de ponerte en forma, empieces donde empieces.</p><span class="more">Infórmate →</span></div>
+        <div class="card reveal"><span class="num">04</span><b>Actividades infantiles</b><small>Kárate infantil · Boxeo infantil</small><p>Los más pequeños aprenden jugando: coordinación, valores y hábitos saludables desde el principio.</p><span class="more">Infórmate →</span></div>
+        <div class="card reveal"><span class="num">05</span><b>Entrenamiento personal</b><small>Plan a tu medida</small><p>Un entrenador trabaja contigo un plan de entrenamiento adaptado a tus objetivos, con seguimiento real.</p><span class="more">Infórmate →</span></div>
+        <div class="card reveal"><span class="num">06</span><b>Asesoramiento nutricional</b><small>Nutrición · Suplementación</small><p>Consejos de nutrición y suplementación deportiva para que lo que entrenas se note antes.</p><span class="more">Infórmate →</span></div>
+      </div>
+      <p class="extras reveal">Además: <b>solárium</b>, <b>clases de posing</b> y <b>tienda de suplementación</b> en el propio centro.</p>
+    </div>
+  </section>
+
+  <section class="sec why" id="porque" data-screen-label="¿Por qué KONGYM?">
+    <div class="inner" style="position:relative">
+      <div class="watermark" aria-hidden="true">KONGYM</div>
+      <h2 class="reveal">¿POR QUÉ<br><em>KONGYM?</em></h2>
+      <div class="pillars">
+        <div class="pillar reveal"><i>①</i><b>Especialización</b><p>Centro especializado en artes marciales y entrenamiento completo: cada disciplina, con quien la domina.</p></div>
+        <div class="pillar reveal"><i>②</i><b>Entrenadores cualificados</b><p>Atención personalizada y entrenamiento adaptado a tus necesidades y limitaciones, con seguridad.</p></div>
+        <div class="pillar reveal"><i>③</i><b>Amplios horarios</b><p>Entrena cuando te venga bien: abrimos también sábados y festivos por la mañana.</p></div>
+      </div>
+      <div class="stats reveal">
+        <div class="stat"><b data-count="900">0</b><span>Clientes</span></div>
+        <div class="stat"><b data-count="40">0</b><span>Clases semanales</span></div>
+        <div class="stat"><b data-count="1000000" data-suffix="+">0</b><span>Calorías quemadas</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec gym" id="gym" data-screen-label="Nuestro Gym">
+    <div class="inner split">
+      <div>
+        <h2 class="reveal">NUESTRO<br><em>GYM</em></h2>
+        <p class="lede reveal">Salas amplias, material renovado y un ambiente que engancha. Ven a conocerlo — la primera visita siempre es bienvenida.</p>
+        <div class="feat reveal">
+          <div><i>01</i><b>Sala de musculación</b></div>
+          <div><i>02</i><b>Zona de cardio y fitness</b></div>
+          <div><i>03</i><b>Salas de actividades</b></div>
+          <div><i>04</i><b>Tatami de artes marciales</b></div>
+          <div><i>05</i><b>Solárium y vestuarios</b></div>
+        </div>
+      </div>
+      <div class="photos reveal">
+        <div class="ph big"><image-slot id="gym-sala-principal" shape="rect" placeholder="Foto: sala principal del gym"></image-slot></div>
+        <div class="ph"><image-slot id="gym-actividades" shape="rect" placeholder="Foto: clase de actividades"></image-slot></div>
+        <div class="ph"><image-slot id="gym-tatami" shape="rect" placeholder="Foto: tatami / boxeo"></image-slot></div>
+      </div>
+    </div>
+    <div class="inner gallery reveal">
+      <div class="ph"><image-slot id="galeria-1" shape="rect" placeholder="Foto galería 1"></image-slot></div>
+      <div class="ph"><image-slot id="galeria-2" shape="rect" placeholder="Foto galería 2"></image-slot></div>
+      <div class="ph"><image-slot id="galeria-3" shape="rect" placeholder="Foto galería 3"></image-slot></div>
+      <div class="ph"><image-slot id="galeria-4" shape="rect" placeholder="Foto galería 4"></image-slot></div>
+    </div>
+  </section>
+
+  <section class="sec tarifas" id="tarifas" data-screen-label="Tarifas">
+    <div class="inner" style="position:relative">
+      <div class="watermark" aria-hidden="true">TARIFAS</div>
+      <h2 class="reveal">EMPIEZA A<br><em>ENTRENAR</em></h2>
+      <p class="lede reveal">Sin letra pequeña. Elige cómo quieres empezar y te lo contamos todo.</p>
+      <div class="planrow">
+        <div class="plan reveal"><small>Clases grupales</small><b>Actividades deportivas y artes marciales</b><p>Zumba, ciclo indoor, pump, pilates, kombat, boxeo… Consulta el cuadro de clases y apúntate a las que encajen contigo.</p><a class="btn" href="#contacto">Infórmate <span class="ar">→</span></a></div>
+        <div class="plan reveal"><small>Precios</small><b>Nuestras tarifas</b><p>Cuotas claras y flexibles: sala, clases, combinadas e infantiles. Pregúntanos y te ayudamos a elegir la tuya.</p><a class="btn" href="#contacto">Ver tarifas <span class="ar">→</span></a></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec contact" id="horarios" data-screen-label="Horarios y contacto">
+    <div class="inner" style="position:relative">
+      <div class="watermark" aria-hidden="true">CONTACTO</div>
+      <h2 class="reveal" id="contacto">HABLEMOS DE<br><em>TUS OBJETIVOS</em></h2>
+      <div class="split">
+        <div class="reveal">
+          <div class="hours">
+            <div><b>Lunes — Viernes</b><span>Mañana y tarde</span></div>
+            <div><b>Sábados</b><span>Por la mañana</span></div>
+            <div><b>Festivos</b><span>Por la mañana</span></div>
+          </div>
+          <div class="cinfo">
+            <a href="tel:+34605161999"><i>T</i>605 16 19 99</a>
+            <a href="https://wa.me/34605161999"><i>W</i>Envíanos un WhatsApp</a>
+            <span><i>D</i>Pl. la Salve, 14 · 33900 Langreo, Asturias</span>
+          </div>
+        </div>
+        <form class="reveal" id="cform">
+          <div class="frow"><input type="text" name="nombre" placeholder="Nombre" required><input type="email" name="email" placeholder="Email" required></div>
+          <div class="frow"><input type="tel" name="telefono" placeholder="Teléfono"><input type="text" name="asunto" placeholder="Asunto"></div>
+          <textarea name="mensaje" rows="5" placeholder="¿Quieres apuntarte o necesitas información sobre nuestras clases? Cuéntanos." required></textarea>
+          <label class="privacy"><input type="checkbox" required> He leído y acepto la política de privacidad</label>
+          <div><button class="btn" type="submit">Enviar <span class="ar">→</span></button></div>
+          <div id="formOk">¡Mensaje enviado! Te responderemos lo antes posible. (demo — el envío real se conecta al publicar la web)</div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer data-screen-label="Footer">
+    <div class="foot-inner reveal">
+      <h3>¿Listo para tu mejor versión?<br><em>Tu manada te espera.</em></h3>
+      <a class="btn" href="#contacto">Reservar ahora <span class="ar">→</span></a>
+    </div>
+    <div class="foot-grid">
+      <div>
+        <a class="logo" href="#top"><b>KON<span style="color:var(--yellow)">GYM</span></b></a>
+        <p>coded by Highkey Labs</p>
+        <div class="social"><a href="https://www.instagram.com/kongym_club/" aria-label="Instagram">IG</a><a href="https://www.facebook.com/people/kongym_club/100063533083592/" aria-label="Facebook">FB</a></div>
+      </div>
+      <div>
+        <h4>Nuestra web</h4>
+        <ul>
+          <li><a href="#top">Inicio</a></li>
+          <li><a href="#servicios">Nuestros servicios</a></li>
+          <li><a href="#tarifas">Tarifas</a></li>
+          <li><a href="#gym">Nuestro gimnasio</a></li>
+          <li><a href="#horarios">Horarios</a></li>
+          <li><a href="#contacto">Contacto</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contacto</h4>
+        <ul>
+          <li><a href="tel:+34605161999">605 16 19 99</a></li>
+          <li><a href="https://wa.me/34605161999">WhatsApp</a></li>
+          <li><a href="#contacto">Enviar email</a></li>
+          <li><a href="#contacto">Pl. la Salve, 14, 33900 Langreo</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bar">
+      <span>© KONGYM · Centro de fitness · Langreo</span>
+      <span class="sp"></span>
+      <a href="#top">Aviso legal</a><a href="#top">Política de privacidad</a><a href="#top">Cookies</a>
+    </div>
+  </footer>
+</main>
+
+<script>
+  const vid = document.querySelector('.mark video');
+  const KEY = 'kongym_logo_video_t';
+  function startLogo(){
+    const t = parseFloat(localStorage.getItem(KEY));
+    if(!isNaN(t) && t < vid.duration) vid.currentTime = t;
+    vid.play().catch(()=>{});
+  }
+  vid.addEventListener('loadedmetadata', startLogo);
+  if(vid.readyState >= 1) startLogo();
+
+  const bg = document.getElementById('bgvid');
+  const BKEY = 'kongym_bg_video_t';
+  function startBg(){
+    const t = parseFloat(localStorage.getItem(BKEY));
+    if(!isNaN(t) && t < bg.duration) bg.currentTime = t;
+    bg.play().catch(()=>{});
+  }
+  bg.addEventListener('loadedmetadata', startBg);
+  if(bg.readyState >= 1) startBg();
+  setInterval(() => {
+    if(!vid.paused) localStorage.setItem(KEY, vid.currentTime.toFixed(2));
+    if(!bg.paused) localStorage.setItem(BKEY, bg.currentTime.toFixed(2));
+  }, 1500);
+
+  const nav = document.getElementById('nav');
+  const dim = document.getElementById('dim');
+  const heroInner = document.getElementById('heroInner');
+  function onScroll(){
+    const y = scrollY, h = innerHeight;
+    nav.classList.toggle('solid', y > 40);
+    const p = Math.min(y / h, 1);
+    dim.style.opacity = (p * .88).toFixed(3);
+    bg.style.transform = `scale(${1.02 + p*.05})`;
+    heroInner.style.transform = `translateY(${y * .18}px)`;
+    heroInner.style.opacity = (1 - p*1.15).toFixed(3);
+  }
+  addEventListener('scroll', onScroll, { passive:true });
+  onScroll();
+
+  const mt = document.getElementById('mtrack');
+  mt.innerHTML += mt.innerHTML;
+
+  const io = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold:.05, rootMargin:'0px 0px -5% 0px' });
+  document.querySelectorAll('.reveal').forEach(el => {
+    if(el.getBoundingClientRect().top < innerHeight) el.classList.add('in');
+    else io.observe(el);
+  });
+
+  // stats counters
+  const fmt = n => n >= 1000000 ? (n/1000000).toFixed(0)+'M' : n.toLocaleString('es-ES');
+  const cio = new IntersectionObserver(es => es.forEach(e => {
+    if(!e.isIntersecting) return; cio.unobserve(e.target);
+    const el = e.target, target = +el.dataset.count, suf = el.dataset.suffix || '+', t0 = performance.now();
+    (function tick(now){
+      const p = Math.min((now - t0)/1400, 1), ease = 1-Math.pow(1-p,3);
+      el.textContent = fmt(Math.round(target*ease)) + (p === 1 ? suf : '');
+      if(p < 1) requestAnimationFrame(tick);
+    })(t0);
+  }), { threshold:.4 });
+  document.querySelectorAll('[data-count]').forEach(el => cio.observe(el));
+
+  // demo form
+  document.getElementById('cform').addEventListener('submit', e => {
+    e.preventDefault();
+    document.getElementById('formOk').style.display = 'block';
+    e.target.querySelector('button').disabled = true;
+  });
+</script>
+<template id="__bundler_thumbnail">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#14171d"/><circle cx="50" cy="44" r="22" fill="#fdc526"/><rect x="32" y="64" width="36" height="10" fill="#fdc526"/></svg>
+</template>
+</body>
+</html>
